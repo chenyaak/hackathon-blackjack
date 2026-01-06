@@ -55,6 +55,7 @@ def decode_name(raw: bytes) -> str:
 # Offer (UDP) — Server → Client
 # =====================
 
+# decode offer message
 def decode_offer(data: bytes):
     """
     Offer format:
@@ -66,8 +67,8 @@ def decode_offer(data: bytes):
     check_cookie_and_type(data, OFFER_TYPE)
 
     _, _, port = struct.unpack("!IBH",
-                               data[:7])  # 7 first bytes: I=4 bytes (Magic cookie), B= 1 byte (type), H= 2 bytes (port)
-    server_name = decode_name(data[7:39]) #
+                               data[:7])  # first 7 bytes: I=4 bytes (Magic cookie), B= 1 byte (type), H= 2 bytes (port)
+    server_name = decode_name(data[7:39])  # last 32 bytes: Server's name
 
     return port, server_name
 
@@ -76,6 +77,7 @@ def decode_offer(data: bytes):
 # Request (TCP) — Client → Server
 # =====================
 
+# encode request message
 def encode_request(num_rounds: int, team_name: str) -> bytes:
     """
     Request format:
@@ -83,10 +85,10 @@ def encode_request(num_rounds: int, team_name: str) -> bytes:
     """
     return struct.pack(
         "!IBB32s",
-        MAGIC_COOKIE,
-        REQUEST_TYPE,
-        num_rounds,
-        _encode_fixed_string(team_name, 32),
+        MAGIC_COOKIE,  # I = 4 bytes
+        REQUEST_TYPE,  # B = 1 byte
+        num_rounds,  # B = 1 byte
+        encode_name(team_name, 32),  # 32 bytes
     )
 
 
@@ -94,6 +96,7 @@ def encode_request(num_rounds: int, team_name: str) -> bytes:
 # Payload — Client → Server
 # =====================
 
+# encode payload message - player chooses HIT or STAND
 def encode_payload_decision(decision: bytes) -> bytes:
     """
     decision must be exactly b'Hittt' or b'Stand'
@@ -103,21 +106,22 @@ def encode_payload_decision(decision: bytes) -> bytes:
 
     return struct.pack(
         "!IB5s",
-        MAGIC_COOKIE,
-        PAYLOAD_TYPE,
-        decision,
+        MAGIC_COOKIE,  # I= 4 bytes
+        PAYLOAD_TYPE,  # B = 1 byte
+        decision,  # 5 bytes
     )
 
 
+# decode payload message - round result and card value
 def decode_payload_server(data: bytes):
     """
     Payload from server:
-    cookie (4B) | type (1B) | result (1B) | rank (2B) | suit (1B)
+    cookie (4B) | type (1B) | result (1B) | rank (2B) | suit (1B) #total of 9 bytes
     """
     if len(data) != 9:
         raise ProtocolError("Invalid payload length")
 
-    _check_cookie_and_type(data, PAYLOAD_TYPE)
+    check_cookie_and_type(data, PAYLOAD_TYPE)
 
     _, _, result, rank, suit = struct.unpack("!IBBHB", data)
 
