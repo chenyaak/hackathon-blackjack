@@ -101,7 +101,7 @@ def offer_broadcaster(stop_event: threading.Event, tcp_port: int, server_name: s
     udp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # avoid bind
 
     offer = encode_offer(tcp_port, server_name)
-    target = ("<broadcast>", CLIENT_UDP_PORT)
+    target = ("255.255.255.255", CLIENT_UDP_PORT)
 
     while not stop_event.is_set():
         try:
@@ -168,7 +168,7 @@ def play_one_round(sock: socket.socket) -> None:
             send_payload(sock, result, card)
 
             # If bust, round is over (result will be LOSS). Stop.
-            if result == ROUND_ONGOING:
+            if result != ROUND_ONGOING:
                 return
 
         elif decision == STAND:

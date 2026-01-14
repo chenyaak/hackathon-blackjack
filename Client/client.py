@@ -129,6 +129,8 @@ def play_session(tcp_sock: socket.socket, num_rounds: int) -> float:
     Returns win_rate (0..1).
     """
     wins = 0
+    gameStarted = 0
+    decision = STAND
 
     # According to our protocol implementation:
     # Server->Client payload length is 9 bytes: cookie(4) + type(1) + result(1) + rank(2) + suit(1)
@@ -147,9 +149,10 @@ def play_session(tcp_sock: socket.socket, num_rounds: int) -> float:
                 if result == ROUND_WIN:
                     wins += 1  # if player won, add it to his record
                 break
-
-            decision = prompt_decision()  # ask player to choose HIT or STAND
-            tcp_sock.sendall(encode_payload_decision(decision))  # send PAYLOAD message with player's decision
+            if gameStarted > 0 or decision == HIT:
+                decision = prompt_decision()  # ask player to choose HIT or STAND
+                tcp_sock.sendall(encode_payload_decision(decision))  # send PAYLOAD message with player's decision
+            gameStarted += 1
 
     return (wins / num_rounds) if num_rounds > 0 else 0.0
 
