@@ -1,4 +1,4 @@
-# Server/protocol.py
+# Server/protocolClient.py
 
 import struct
 from Formats.packet_formats import (

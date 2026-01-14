@@ -19,7 +19,7 @@ from Formats.packet_formats import (
     ROUND_ONGOING,
     ROUND_WIN,
 )
-from protocol import (
+from protocolClient import (
     ProtocolError,
     decode_offer,
     encode_request,
