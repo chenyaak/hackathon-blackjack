@@ -152,9 +152,10 @@ def play_session(tcp_sock: socket.socket, num_rounds: int) -> float:
                 if result == ROUND_WIN:
                     wins += 1  # if player won, add it to his record
                 break
-            if gameStarted > 0 or decision == HIT or overall < 21:
-                decision = prompt_decision()  # ask player to choose HIT or STAND
-                tcp_sock.sendall(encode_payload_decision(decision))  # send PAYLOAD message with player's decision
+            if gameStarted > 0 or decision == HIT:
+                if overall < 21:
+                    decision = prompt_decision()  # ask player to choose HIT or STAND
+                    tcp_sock.sendall(encode_payload_decision(decision))  # send PAYLOAD message with player's decision
             gameStarted += 1
 
     return (wins / num_rounds) if num_rounds > 0 else 0.0

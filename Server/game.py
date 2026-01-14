@@ -11,9 +11,10 @@ from Formats.packet_formats import (
     STAND,
 )
 
+
 class Deck:
     def __init__(self):
-        self.cards = [] # [(rank, suit),..]
+        self.cards = []  # [(rank, suit),..]
         self._build_deck()
         self.shuffle()
 
@@ -23,7 +24,7 @@ class Deck:
         Each card is represented as (rank, suit)
         """
         self.cards = []
-        for suit in SUITS.keys():      # 0..3
+        for suit in SUITS.keys():  # 0..3
             for rank in range(1, 14):  # 1..13
                 self.cards.append((rank, suit))
 
@@ -38,6 +39,7 @@ class Deck:
         if not self.cards:
             raise RuntimeError("Deck is empty")
         return self.cards.pop()
+
 
 class Hand:
     def __init__(self):
@@ -60,6 +62,7 @@ class Hand:
 
     def is_bust(self) -> bool:
         return self.get_value() > 21
+
 
 class BlackjackGame:
     def __init__(self):
@@ -105,7 +108,7 @@ class BlackjackGame:
         card = self.deck.draw_card()
         self.player.add_card(card)
 
-        if self.player.is_bust(): # if the player busts (>21).
+        if self.player.is_bust():  # if the player busts (>21).
             self.round_over = True
             return ROUND_LOSS, card
 
